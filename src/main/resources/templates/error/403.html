@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>403 - Acceso Denegado</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="auth-wrapper">
+    <div class="auth-card" style="max-width:500px; text-align:center;">
+
+        <div style="font-size:3rem; margin-bottom:0.8rem;">🔒</div>
+        <h1 style="color:var(--danger); font-size:1.6rem; margin-bottom:0.4rem;">
+            403 — Acceso Denegado
+        </h1>
+
+        <p style="color:var(--muted); margin-bottom:1.2rem;">
+            El usuario
+            <strong style="color:var(--text);" sec:authentication="name">usuario</strong>
+            no tiene permisos suficientes para acceder a este recurso.
+        </p>
+
+        <div class="alert alert-error" style="text-align:left;">
+            Spring Security interceptó la solicitud porque tu rol no cumple
+            la expresión <code>@PreAuthorize</code> o la regla de URL requerida.
+        </div>
+
+        <div style="display:flex; gap:0.8rem; justify-content:center; margin-top:1.2rem;">
+            <a th:href="@{/dashboard}" class="btn btn-primary" style="width:auto;">
+                ← Volver al Dashboard
+            </a>
+            <form th:action="@{/logout}" method="post" style="margin:0;">
+                <button type="submit" class="btn btn-outline">Cerrar sesión</button>
+            </form>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Panel de Administración</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="app-layout">
+
+    <nav class="topbar">
+        <span class="brand">seguridad_web / admin</span>
+        <div class="nav-links">
+            <a th:href="@{/dashboard}">Dashboard</a>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-danger"
+                        style="padding:0.3rem 0.8rem; font-size:0.82rem;">
+                    Cerrar sesión
+                </button>
+            </form>
+        </div>
+    </nav>
+
+    <main class="main-content">
+
+        <h1 class="page-title">Panel de Administración</h1>
+        <p class="page-subtitle">
+            Sesión como: <strong sec:authentication="name">admin</strong>
+            &nbsp;<span class="badge badge-admin">ADMIN</span>
+        </p>
+
+        <div class="alert alert-success" th:if="${param.rolCambiado}">
+            Rol actualizado correctamente.
+        </div>
+
+        <hr class="divider"/>
+
+        <p style="font-size:0.875rem; color:var(--muted); margin-bottom:0.5rem;">
+            Total de usuarios:
+            <strong th:text="${usuarios.size()}" style="color:var(--text);">0</strong>
+            &nbsp;·&nbsp;
+            <em style="color:var(--muted); font-size:0.8rem;">
+                listarTodos() protegido con @PreAuthorize("hasRole('ADMIN')")
+            </em>
+        </p>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Rol actual</th>
+                        <th>Estado</th>
+                        <th>Cambiar rol</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="u : ${usuarios}">
+                        <td th:text="${u.id}">1</td>
+                        <!-- th:text escapa el nombre — protección XSS -->
+                        <td th:text="${u.nombre}">Nombre</td>
+                        <td th:text="${u.email}">correo</td>
+                        <td>
+                            <span class="badge badge-admin" th:if="${u.rol == 'ROLE_ADMIN'}">ADMIN</span>
+                            <span class="badge badge-user"  th:if="${u.rol == 'ROLE_USER'}">USER</span>
+                        </td>
+                        <td>
+                            <span class="status-active"   th:if="${u.activo}">● Activo</span>
+                            <span class="status-inactive" th:if="${!u.activo}">● Inactivo</span>
+                        </td>
+                        <td>
+                            <!-- cambiarRol() en el servicio tiene @PreAuthorize("hasRole('ADMIN')") -->
+                            <form th:action="@{/admin/cambiarRol}" method="post"
+                                  style="display:flex; gap:0.4rem; align-items:center;">
+                                <input type="hidden" name="id" th:value="${u.id}"/>
+                                <select name="nuevoRol"
+                                        style="background:var(--bg); color:var(--text);
+                                               border:1px solid var(--border); border-radius:4px;
+                                               padding:0.2rem 0.4rem; font-size:0.78rem;">
+                                    <option value="ROLE_USER"  th:selected="${u.rol == 'ROLE_USER'}">USER</option>
+                                    <option value="ROLE_ADMIN" th:selected="${u.rol == 'ROLE_ADMIN'}">ADMIN</option>
+                                </select>
+                                <button type="submit" class="btn btn-outline"
+                                        style="padding:0.2rem 0.6rem; font-size:0.75rem;">
+                                    Guardar
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(usuarios)}">
+                        <td colspan="6" style="text-align:center; color:var(--muted); padding:2rem;">
+                            No hay usuarios registrados.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+</div>
+</body>
+</html>
