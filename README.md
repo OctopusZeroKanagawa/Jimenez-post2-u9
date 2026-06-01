@@ -139,16 +139,6 @@ src/main/resources/templates/
 
 ---
 
-## Commits sugeridos
-
-```
-1. feat: agregar @PreAuthorize con 5 expresiones SpEL en UsuarioService
-2. feat: página 403 personalizada y CSP header en SecurityConfig
-3. feat: verificar XSS con th:text, CSRF y documentar pruebas
-```
-
----
-
 ## Autor
 
 **Andres Felipe Jimenez Ramirez**  

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="app-layout">
+
+    <nav class="topbar">
+        <span class="brand">seguridad_web</span>
+        <div class="nav-links">
+            <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin}">Admin</a>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-danger"
+                        style="padding:0.3rem 0.8rem; font-size:0.82rem;">
+                    Cerrar sesión
+                </button>
+            </form>
+        </div>
+    </nav>
+
+    <main class="main-content">
+
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">
+            Bienvenido, <strong th:text="${usuario}">usuario</strong>
+        </p>
+
+        <hr class="divider"/>
+
+        <div class="info-grid">
+            <div class="info-card">
+                <div class="label">Usuario autenticado</div>
+                <div class="value" sec:authentication="name">email</div>
+            </div>
+            <div class="info-card">
+                <div class="label">Rol asignado</div>
+                <div class="value">
+                    <span class="badge badge-admin" sec:authorize="hasRole('ADMIN')">ADMIN</span>
+                    <span class="badge badge-user"  sec:authorize="hasRole('USER')">USER</span>
+                </div>
+            </div>
+            <div class="info-card">
+                <div class="label">Total usuarios (hasAnyRole)</div>
+                <!-- contarUsuarios() tiene @PreAuthorize("hasAnyRole('ADMIN','USER')") -->
+                <div class="value" th:text="${totalUsuarios}">0</div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+             VERIFICACIÓN XSS — Paso 3 del laboratorio
+             th:text escapa automáticamente cualquier HTML en el campo nombre.
+             Si el nombre es <script>alert("XSS")</script>, Thymeleaf lo convierte en
+             &lt;script&gt;alert("XSS")&lt;/script&gt; y el navegador lo muestra como
+             texto plano, nunca lo ejecuta.
+             ============================================================ -->
+        <div class="info-card" style="margin-top:1rem;" th:if="${usuarioObj != null}">
+            <div class="label">Nombre de perfil (th:text — XSS mitigado)</div>
+            <!--
+                SEGURO: th:text escapa el contenido.
+                Registra un usuario con nombre: <script>alert("XSS")</script>
+                y verifica en el inspector que el navegador muestra el texto literal.
+            -->
+            <div class="value" th:text="${usuarioObj.nombre}">Nombre</div>
+            <div style="margin-top:0.5rem; font-size:0.75rem; color:var(--muted);">
+                Inspeccioná el HTML: deberías ver &amp;lt;script&amp;gt; en lugar de &lt;script&gt;
+            </div>
+        </div>
+
+        <!-- Sección exclusiva USER -->
+        <div sec:authorize="hasRole('USER')" class="info-card" style="margin-top:1rem;">
+            <div class="label">Área de usuario estándar</div>
+            <p style="margin-top:0.5rem; font-size:0.875rem; color:var(--muted);">
+                Solo los administradores pueden acceder al panel de gestión y cambiar roles.
+                Si intentas ir a <code>/admin</code>, Spring Security te mostrará la página 403.
+            </p>
+        </div>
+
+        <!-- Sección exclusiva ADMIN -->
+        <div sec:authorize="hasRole('ADMIN')" class="admin-section">
+            <p>🔐 Acceso de administrador habilitado.</p>
+            <a th:href="@{/admin}" class="btn btn-outline">Ir al Panel de Administración →</a>
+        </div>
+
+    </main>
+</div>
+</body>
+</html>
